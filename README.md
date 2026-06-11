@@ -1,6 +1,6 @@
 # ComfyUI JXL Support
 
-Load and save JPEG XL (`.jxl`) images in ComfyUI with lossy/lossless compression and optional workflow metadata embedding.
+Load and save JPEG XL (`.jxl`) images in ComfyUI with lossy/lossless compression and optional workflow metadata compression.
 
 ## Installation
 
