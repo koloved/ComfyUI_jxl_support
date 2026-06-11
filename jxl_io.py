@@ -114,27 +114,38 @@ def _parse_metadata_blob(raw: bytes) -> dict:
 
 def encode_jxl(
     image: np.ndarray,
-    lossless: bool = True,
+    quality: int = 100,
+    compress_metadata: bool = True,
     prompt: dict | None = None,
     extra_pnginfo: dict | None = None,
 ) -> bytes:
-    """Encode a numpy image (HxWxC, uint8) to a JXL container with optional metadata."""
+    """Encode a numpy image (HxWxC, uint8) to a JXL container with optional metadata.
+
+    Quality 100 = lossless. Lower values = more compression.
+    """
     if not _JXL_AVAILABLE:
         raise RuntimeError(
             "imagecodecs is not available. Install it with: pip install imagecodecs"
         )
 
-    codestream = imagecodecs.jpegxl_encode(image, lossless=lossless)
+    if quality >= 100:
+        codestream = imagecodecs.jpegxl_encode(image, lossless=True)
+    else:
+        distance = (100 - quality) * 0.15
+        codestream = imagecodecs.jpegxl_encode(image, lossless=False, distance=distance)
 
     container = _JXL_SIG + _FTYP_BOX
     container += _make_box(b"jxlc", codestream)
 
-    if (prompt is not None or extra_pnginfo is not None) and _BROTLI_AVAILABLE:
+    if prompt is not None or extra_pnginfo is not None:
         raw_meta = _build_metadata_blob(prompt, extra_pnginfo)
-        compressed = _compress_metadata(raw_meta)
-        if compressed is not None:
-            brob_content = b"comf" + compressed
-            container += _make_box(b"brob", brob_content)
+        if compress_metadata and _BROTLI_AVAILABLE:
+            compressed = _compress_metadata(raw_meta)
+            if compressed is not None:
+                brob_content = b"comf" + compressed
+                container += _make_box(b"brob", brob_content)
+        else:
+            container += _make_box(b"brob", b"comf" + raw_meta)
 
     return container
 

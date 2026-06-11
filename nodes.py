@@ -75,7 +75,8 @@ class SaveImageJXL:
             "required": {
                 "images": ("IMAGE",),
                 "filename_prefix": ("STRING", {"default": "ComfyUI"}),
-                "lossless": ("BOOLEAN", {"default": True}),
+                "quality": ("INT", {"default": 100, "min": 0, "max": 100, "step": 1}),
+                "compress_metadata": ("BOOLEAN", {"default": True}),
             },
             "hidden": {
                 "prompt": "PROMPT",
@@ -88,7 +89,7 @@ class SaveImageJXL:
     OUTPUT_NODE = True
     CATEGORY = "image"
 
-    def save_images(self, images, filename_prefix="ComfyUI", lossless=True,
+    def save_images(self, images, filename_prefix="ComfyUI", quality=100, compress_metadata=True,
                     prompt=None, extra_pnginfo=None):
         full_output_folder, filename, counter, subfolder, _ = folder_paths.get_save_image_path(
             filename_prefix, self.output_dir, images[0].shape[1], images[0].shape[0]
@@ -99,7 +100,8 @@ class SaveImageJXL:
             np_image = (255.0 * image_tensor.cpu().numpy()).clip(0, 255).astype(np.uint8)
             encoded = encode_jxl(
                 np_image,
-                lossless=lossless,
+                quality=quality,
+                compress_metadata=compress_metadata,
                 prompt=prompt,
                 extra_pnginfo=extra_pnginfo,
             )
