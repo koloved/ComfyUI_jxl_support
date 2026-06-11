@@ -2,6 +2,14 @@
 
 Load and save JPEG XL (`.jxl`) images in ComfyUI with lossy/lossless compression and optional workflow metadata embedding.
 
+## Installation
+
+```bash
+open ComfyUI/custom_nodes/
+git clone https://github.com/koloved/ComfyUI_jxl_support
+```
+Restart ComfyUI after installation.
+
 ## Nodes
 
 ### Save Image (JXL)
