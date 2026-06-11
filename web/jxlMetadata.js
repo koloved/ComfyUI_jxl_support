@@ -77,7 +77,7 @@ async function decompressBrotli(compressed) {
       L("Brotli decompressed:", total, "bytes", "format:", formats[f]);
       return result;
     } catch (e) {
-      W('Brotli error with format "' + formats[f] + '":', e.message);
+      L('Brotli decompression failed for format "' + formats[f] + '", trying uncompressed');
     }
   }
   return null;
@@ -92,12 +92,20 @@ async function getMetadataFromJxlBuffer(buffer) {
       if (innerType !== "comf") continue;
       var compressed = boxes[i].data.subarray(4);
       var decompressed = await decompressBrotli(compressed);
-      if (!decompressed) return null;
+      if (decompressed) {
+        try {
+          var decoded = new TextDecoder("utf-8").decode(decompressed);
+          return JSON.parse(decoded);
+        } catch (e) {
+          W("JSON parse error:", e.message);
+          return null;
+        }
+      }
       try {
-        var decoded = new TextDecoder("utf-8").decode(decompressed);
+        var decoded = new TextDecoder("utf-8").decode(compressed);
         return JSON.parse(decoded);
       } catch (e) {
-        W("JSON parse error:", e.message);
+        W("JSON parse error (uncompressed fallback):", e.message);
         return null;
       }
     }

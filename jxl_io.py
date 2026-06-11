@@ -164,11 +164,13 @@ def decode_jxl(data: bytes):
         brob = _find_box(boxes, b"brob")
         if brob is not None:
             raw_type = brob["data"][:4]
-            compressed = brob["data"][4:]
+            payload = brob["data"][4:]
             if raw_type == b"comf":
-                decompressed = _decompress_metadata(compressed)
+                decompressed = _decompress_metadata(payload)
                 if decompressed is not None:
                     metadata = _parse_metadata_blob(decompressed)
+                else:
+                    metadata = _parse_metadata_blob(payload)
         codestream = _extract_codestream_from_boxes(boxes)
         if codestream is None:
             raise ValueError("No JXL codestream found in container")
@@ -201,11 +203,13 @@ def extract_jxl_metadata(data: bytes) -> dict:
     brob = _find_box(boxes, b"brob")
     if brob is not None:
         raw_type = brob["data"][:4]
-        compressed = brob["data"][4:]
+        payload = brob["data"][4:]
         if raw_type == b"comf":
-            decompressed = _decompress_metadata(compressed)
+            decompressed = _decompress_metadata(payload)
             if decompressed is not None:
                 metadata = _parse_metadata_blob(decompressed)
+            else:
+                metadata = _parse_metadata_blob(payload)
     return metadata
 
 
