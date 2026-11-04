@@ -177,7 +177,7 @@ def decode_jxl(data: bytes):
     else:
         codestream = data
 
-    image = imagecodecs.jpegxl_decode(codestream)
+    image = imagecodecs.jpegxl_decode(data)
     return image, metadata
 
 

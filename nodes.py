@@ -39,7 +39,7 @@ class LoadImageJXL:
             alpha = np_image[:, :, 3].astype(np.float32) / 255.0
             mask = 1.0 - torch.from_numpy(alpha)
         else:
-            image_np = np_image.astype(np.float32) / 255.0
+            image_np = np_image.astype(np.float32) / float(np.iinfo(np_image.dtype).max)
             mask = torch.zeros((image_np.shape[0], image_np.shape[1]), dtype=torch.float32)
 
         image_t = torch.from_numpy(image_np)[None,]
